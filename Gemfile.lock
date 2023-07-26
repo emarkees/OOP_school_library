@@ -1,0 +1,65 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    airbrussh (1.4.1)
+      sshkit (>= 1.6.1, != 1.7.0)
+    ast (2.4.2)
+    capistrano (3.17.3)
+      airbrussh (>= 1.0.0)
+      i18n
+      rake (>= 10.0.0)
+      sshkit (>= 1.9.0)
+    capistrano-composer (0.0.6)
+      capistrano (>= 3.0.0.pre)
+    capistrano-file-permissions (1.0.0)
+      capistrano (~> 3.0)
+    capistrano-symfony (1.0.0)
+      capistrano (~> 3.1)
+      capistrano-composer (~> 0.0.3)
+      capistrano-file-permissions (~> 1.0)
+    concurrent-ruby (1.2.2)
+    i18n (1.14.1)
+      concurrent-ruby (~> 1.0)
+    json (2.6.3)
+    language_server-protocol (3.17.0.3)
+    net-scp (4.0.0)
+      net-ssh (>= 2.6.5, < 8.0.0)
+    net-ssh (7.1.0)
+    parallel (1.23.0)
+    parser (3.2.2.3)
+      ast (~> 2.4.1)
+      racc
+    racc (1.7.1)
+    rainbow (3.1.1)
+    rake (13.0.6)
+    regexp_parser (2.8.1)
+    rexml (3.2.5)
+    rubocop (1.55.0)
+      json (~> 2.3)
+      language_server-protocol (>= 3.17.0)
+      parallel (~> 1.10)
+      parser (>= 3.2.2.3)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
+      rexml (>= 3.2.5, < 4.0)
+      rubocop-ast (>= 1.28.1, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 2.4.0, < 3.0)
+    rubocop-ast (1.29.0)
+      parser (>= 3.2.1.0)
+    ruby-progressbar (1.13.0)
+    sshkit (1.21.5)
+      net-scp (>= 1.1.2)
+      net-ssh (>= 2.8.0)
+    unicode-display_width (2.4.2)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  capistrano (~> 3.4)
+  capistrano-symfony (~> 1.0.0.rc1)
+  rubocop (>= 1.0, < 2.0)
+
+BUNDLED WITH
+   2.4.17

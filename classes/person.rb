@@ -1,6 +1,4 @@
 # ./classes/person.rb
-require './classes/nameable'
-
 class Person < Nameable
   attr_reader :id
   attr_accessor :name, :age

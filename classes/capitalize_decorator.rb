@@ -1,5 +1,5 @@
 # ./classes/capitalize_decorator.rb
-require './classes/base_decorator'
+require_relative 'base_decorator'
 
 class CapitalizeDecorator < BaseDecorator
   def correct_name

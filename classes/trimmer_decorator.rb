@@ -1,5 +1,5 @@
 # ./classes/trimmer_decorator.rb
-require './classes/base_decorator'
+require_relative 'base_decorator'
 
 class TrimmerDecorator < BaseDecorator
   def correct_name

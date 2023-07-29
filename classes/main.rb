@@ -1,17 +1,19 @@
+require 'date'
 require_relative 'app'
+require_relative 'teacher'
 
 def main
   app = App.new
 
   loop do
     puts "\nOptions:"
-    puts "1. List all books"
-    puts "2. List all people"
-    puts "3. Create a person"
-    puts "4. Create a book"
-    puts "5. Create a rental"
-    puts "6. List rentals for a person"
-    puts "7. Quit"
+    puts '1. List all books'
+    puts '2. List all people'
+    puts '3. Create a person'
+    puts '4. Create a book'
+    puts '5. Create a rental'
+    puts '6. List rentals for a person'
+    puts '7. Quit'
 
     print "\nEnter your choice (1-7): "
     choice = gets.chomp.to_i
@@ -24,20 +26,36 @@ def main
       puts "\nList of all people:"
       app.list_all_people
     when 3
-      print "Enter person's name: "
-      name = gets.chomp
+      print 'Do you want to create a student (1) or teacher (2) [input the number]: '
+      type = gets.chomp.to_i
+      unless [1, 2].include?(type)
+        puts 'Invalid person type. Please use "1" for Student or "2" for Teacher.'
+        next
+      end
       print "Enter person's age: "
       age = gets.chomp.to_i
-      print "Enter person type (teacher or student): "
-      type = gets.chomp.downcase
-      if type == 'student'
-        print "Does the student have parent permission? (true or false): "
-        parent_permission = gets.chomp.downcase == 'true'
+      print "Enter person's name: "
+      name = gets.chomp
+
+      if type == 1
+        print 'Does the student have parent permission? [Y/N]: '
+        parent_permission_input = gets.chomp.downcase
+        parent_permission = parent_permission_input == 'y'
+        if parent_permission
+          print "Enter student's classroom: "
+          classroom = gets.chomp
+        else
+          classroom = nil
+        end
+        person = app.create_person(name, age, type, parent_permission: parent_permission, classroom: classroom)
       else
-        parent_permission = true
+        print "Enter teacher's specialization: "
+        specialization = gets.chomp
+        person = app.create_person(name, age, type, parent_permission: true, specialization: specialization)
       end
-      person = app.create_person(name, age, type, parent_permission: parent_permission)
+
       puts "#{person.class} created with ID: #{person.id}, Name: #{person.name}"
+
     when 4
       print "Enter book's title: "
       title = gets.chomp
@@ -46,30 +64,49 @@ def main
       book = app.create_book(title, author)
       puts "Book created with Title: #{book.title}, Author: #{book.author}"
     when 5
-      print "Enter rental date (YYYY-MM-DD): "
-      date = Date.parse(gets.chomp)
-      puts "Available books:"
-      app.list_all_books
-      print "Enter book ID to rent: "
-      book_id = gets.chomp.to_i
-      puts "Available people:"
-      app.list_all_people
-      print "Enter person ID to create rental: "
-      person_id = gets.chomp.to_i
-      app.create_rental(date, book_id, person_id)
-      puts "Rental created."
+      puts 'Select a book from the following list by numberggg:'
+      app.list_all_books.each_with_index do |book, index|
+        puts "#{index + 1}. Title: #{book.title}, Author: #{book.author}"
+      end
+      print 'Select a person from the following list by number: '
+      person_number = gets.chomp.to_i
+      selected_person = app.list_all_people[person_number - 1]
+
+      if selected_person.nil?
+        puts 'Invalid person number. Please choose a valid person from the list.'
+        next
+      end
+
+      puts 'Selected person:'
+      puts "#{selected_person.class}: ID: #{selected_person.id}, Name: #{selected_person.name}"
+
+      print 'Select a book from the following list by number: '
+      book_number = gets.chomp.to_i
+      selected_book = app.list_all_books[book_number - 1]
+
+      if selected_book.nil?
+        puts 'Invalid book number. Please choose a valid book from the list.'
+        next
+      end
+
+      print 'Enter rental date (YYYY-MM-DD): '
+      begin
+        date = Date.parse(gets.chomp)
+      rescue ArgumentError
+        puts 'Invalid date format. Please enter a valid date in the format YYYY-MM-DD.'
+        next
+      end
+
+      app.create_rental(date, selected_book.object_id, selected_person.object_id)
+      puts 'Rental created.'
     when 6
-      puts "Available people:"
-      app.list_all_people
-      print "Enter person ID to list rentals: "
-      person_id = gets.chomp.to_i
-      puts "Rentals for the selected person:"
+      puts 'ID of person:'
       app.list_rentals_for_person(person_id)
     when 7
-      puts "Goodbye!"
+      puts 'Goodbye!'
       break
     else
-      puts "Invalid option. Please choose a valid option (1-7)."
+      puts 'Invalid option. Please choose a valid option (1-7).'
     end
   end
 end

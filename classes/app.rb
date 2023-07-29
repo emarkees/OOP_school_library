@@ -1,6 +1,9 @@
 require_relative 'person'
 require_relative 'book'
 require_relative 'rental'
+require_relative 'student'
+require_relative 'teacher'
+require_relative 'classroom'
 
 class App
   def initialize
@@ -17,13 +20,14 @@ class App
     @people.each { |person| puts "#{person.class}: ID: #{person.id}, Name: #{person.name}" }
   end
 
-  def create_person(name, age, type, parent_permission: true)
-    if type == 'teacher'
-      person = Teacher.new(name, age)
-    elsif type == 'student'
-      person = Student.new(name, age, parent_permission: parent_permission)
+  def create_person(name, age, type, parent_permission: true, classroom: nil, specialization: nil)
+    case type
+    when 1
+      person = Student.new(name, age, parent_permission: parent_permission, classroom: classroom)
+    when 2
+      person = Teacher.new(age, specialization, name, parent_permission: parent_permission)
     else
-      raise "Invalid person type. Use 'teacher' or 'student'."
+      raise "Invalid person type. Use '1' for student or '2' for teacher."
     end
 
     @people << person
@@ -40,8 +44,8 @@ class App
     book = @books.find { |b| b.object_id == book_id }
     person = @people.find { |p| p.object_id == person_id }
 
-    raise "Book not found" if book.nil?
-    raise "Person not found" if person.nil?
+    raise 'Book not found' if book.nil?
+    raise 'Person not found' if person.nil?
 
     rental = Rental.new(date, book, person)
     @rentals << rental
@@ -51,7 +55,7 @@ class App
   def list_rentals_for_person(person_id)
     person = @people.find { |p| p.object_id == person_id }
 
-    raise "Person not found" if person.nil?
+    raise 'Person not found' if person.nil?
 
     person_rentals = @rentals.select { |rental| rental.person == person }
     person_rentals.each do |rental|

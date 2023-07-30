@@ -1,14 +1,44 @@
-# main_script.rb
-require_relative 'nameable'
-require_relative 'person'
-require_relative 'capitalize_decorator'
-require_relative 'trimmer_decorator'
+require_relative 'app'
 
-person = Person.new(22, 'maximilianus')
-puts "Original Name: #{person.correct_name}"
+def welcome_message
+  puts 'Welcome to the School Library!'
+  puts 'Please choose an option:'
+  puts '1. List all books.'
+  puts '2. List all people.'
+  puts '3. Create a person (teacher or student, not a plain Person).'
+  puts '4. Create a book.'
+  puts '5. Create a rental.'
+  puts '6. List all rentals for a given person id.'
+  puts '7. Exit.'
+end
 
-capitalized_person = CapitalizeDecorator.new(person)
-puts "Capitalized Name: #{capitalized_person.correct_name}"
+# Sample usage of the app
 
-capitalized_trimmed_person = TrimmerDecorator.new(capitalized_person)
-puts "Capitalized and Trimmed Name: #{capitalized_trimmed_person.correct_name}"
+app = App.new
+
+loop do
+  welcome_message
+  choice = gets.chomp.to_i
+
+  case choice
+  when 1
+    app.list_all_books
+  when 2
+    app.list_all_people
+  when 3
+    app.create_person_interactively
+  when 4
+    app.create_book_interactively
+  when 5
+    app.create_rental_interactively
+  when 6
+    puts 'Enter person ID to list rentals:'
+    person_id = gets.chomp.to_i
+    app.list_rentals_for_person(person_id)
+  when 7
+    puts 'Exiting...'
+    break
+  else
+    puts 'Invalid option. Please try again.'
+  end
+end

@@ -1,40 +1,36 @@
-# ./classes/person.rb
 require_relative 'nameable'
 
 class Person < Nameable
-  attr_reader :id
-  attr_accessor :name, :age, :rentals
+  attr_accessor :name, :age
+  attr_reader :id, :rentals
 
-  def initialize(age, name = 'Unknown', parent_permission: true)
+  def initialize(name: 'Unknown', age: nil, parent_permission: true)
     super()
-    @id = Random.rand(1..1000)
-    super()
-    @age = age
+    @id = generate_id
     @name = name
+    @age = age
     @parent_permission = parent_permission
     @rentals = []
   end
 
-  def rental(date, book)
-    rental = Rental.new(date, book, self)
+  def can_use_services?
+    of_age? || @parent_permission
+  end
+
+  def add_rental(rental)
     @rentals << rental
-    book.rentals << rental
-    rental
   end
 
   private
 
   def of_age?
-    @age >= 18
+    @age.to_i >= 18
   end
 
-  public
-
-  def can_use_service
-    of_age? || @parent_permission
-  end
-
-  def correct_name
-    @name
+  def generate_id
+    # Implementation to generate a unique ID
+    # You can customize this method based on your needs
+    # For simplicity, let's assume it returns a random number between 1000 and 9999
+    rand(1000..9999)
   end
 end

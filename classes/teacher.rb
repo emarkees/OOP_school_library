@@ -1,12 +1,10 @@
-# require './classes/person'
 require_relative 'person'
 
-# Define a sub-base class
 class Teacher < Person
-  attr_reader :specialization
+  attr_accessor :specialization
 
-  def initialize(age, specialization, name = 'Unknown', parent_permission: true)
-    super(age, name, parent_permission: parent_permission)
+  def initialize(specialization:, name: 'Unknown', age: nil, parent_permission: true)
+    super(name: name, age: age, parent_permission: parent_permission)
     @specialization = specialization
   end
 

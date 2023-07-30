@@ -1,139 +1,167 @@
 require_relative 'person'
-require_relative 'student'
 require_relative 'teacher'
+require_relative 'student'
 require_relative 'book'
-require_relative 'classroom'
 require_relative 'rental'
+require_relative 'classroom'
 
 class App
   def initialize
-    @book_shelf = []
-    @persons = []
+    @people = []
+    @books = []
     @rentals = []
-    @classroom = [] # Add this line to initialize an empty array for classrooms
   end
 
-  def start_app
-    puts 'Welcome to the OOP University Library App!'
-    until list_of_options
-      input = gets.chomp
-      if input == '7'
-        puts 'Thank you for visiting our University Library!'
-        break
-      end
-      option(input)
+  def list_all_books
+    puts 'List of all books:'
+    @books.each { |book| puts "#{book.title} by #{book.author}" }
+  end
+
+  def list_all_people
+    puts 'List of all people:'
+    @people.each.with_index(1) do |person, index|
+      person_type = person.is_a?(Teacher) ? 'Teacher' : 'Student'
+      puts "#{index}. #{person.name} (#{person_type})"
     end
   end
 
-  # books
-  def create_book
-    puts 'Add a new book'
-    puts 'Enter title: '
-    title = gets.chomp
-    puts 'Enter author: '
-    author = gets
-    book = Book.new(title, author)
-    @book_shelf.push(book)
-    puts "#{title} has been successfully added to the book shelf."
+  def list_all_people_with_indexes
+    puts 'List of all people:'
+    @people.each_with_index do |person, index|
+      person_type = person.is_a?(Teacher) ? 'Teacher' : 'Student'
+      puts "#{index + 1}. #{person.name} (#{person_type})"
+    end
   end
 
-  def list_all_book
-    puts 'No book in the libary! Please enter 1 to add a book.' if @book_shelf.empty?
-    @book_shelf.each { |book| puts "[Book] Title: #{book.title}, Author: #{book.author}" }
-  end
+  def create_person(options)
+    name = options[:name]
+    age = options[:age]
+    type = options[:type]
+    classroom = options[:classroom]
+    specialization = options[:specialization]
+    parent_permission = options.fetch(:parent_permission, true)
 
-  # persons
-  def create_person
-    puts 'Enter 1 to add a student or 2 to add a teacher or 7 to go back : '
-    option = gets.chomp
-
-    case option
-    when '1'
-      create_student
-    when '2'
-      create_teacher
-    when '7'
-      start_app
+    if type == 'teacher'
+      person = Teacher.new(name: name, age: age, parent_permission: parent_permission, specialization: specialization)
+    elsif type == 'student'
+      person = Student.new(name: name, age: age, parent_permission: parent_permission, classroom: classroom)
     else
-      puts 'Invalid input!. Try again'
-      create_person
+      puts 'Invalid person type. Please specify either "teacher" or "student".'
+      return
     end
+
+    @people << person
+    puts "#{person.name} (#{type.capitalize}) created."
+    display_person_info(person)
   end
 
-  def create_student
-    puts 'Add a new student'
-    print 'Age: '
-    age = gets.chomp.to_i
-    print 'Please enter a name: '
-    name = gets.chomp
-    print 'Has parent permission? [y/n]: '
-    parent_permission = gets.chomp.downcase
-    until %w[n y].include?(parent_permission)
-      puts 'Enter y for yes and n for no'
-      print 'Has parent permission? [y/n]: '
-      parent_permission = gets.chomp.downcase
-    end
-    student = Student.new(name, age, parent_permission: parent_permission, classroom: nil)
-    @persons << student
-    case parent_permission
-    when 'n'
-      puts 'Student doesn\'t have parent permission, and can\'t rent book'
-    when 'y'
-      puts 'Student added successfully'
-    end
+  def create_book(title, author)
+    book = Book.new(title, author)
+    @books << book
+    puts "#{book.title} by #{book.author} created."
   end
 
-  def create_teacher
-    puts 'Add a teacher'
-    print 'Enter name: '
-    name = gets.chomp
-    print 'Enter age: '
-    age = gets.chomp.to_i
-    print 'Enter specialization: '
-    specialization = gets.chomp
-    teacher = Teacher.new(age, specialization, name)
-    @persons << teacher
-    puts 'Teacher added successfully'
-  end
+  def create_rental(person_id, book_title, rental_date)
+    person = find_person_by_id(person_id)
+    book = find_book_by_title(book_title)
 
-  def list_all_persons
-    puts 'No one in the libray list! Add a person.' if @persons.empty?
-    @persons.each do |person|
-      puts "[#{person.class.name}] Name: #{person.name}, ID: #{person.id},  Age: #{person.age}"
-    end
-  end
-
-  # rental
-  def create_rental
-    puts 'Select the book you want to rent by entering its number'
-    @book_shelf.each_with_index { |book, index| puts "(#{index}) Title: #{book.title}, Author: #{book.author}" }
-
-    book_id = gets.chomp.to_i
-    puts 'Select a person from the list by its number'
-    @persons.each_with_index do |person, index|
-      puts "(#{index}) [#{person.class.name}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
+    if person.nil? || book.nil?
+      puts 'Person or book not found. Please check the provided IDs and titles.'
+      return
     end
 
-    person_id = gets.chomp.to_i
-
-    puts 'Date: '
-    date = gets.chomp.to_s
-    rental = Rental.new(date, @persons[person_id], @book_shelf[book_id])
+    rental = Rental.new(person, book, rental_date)
     @rentals << rental
-    puts 'Rental created successfully'
+    puts "Rental created for #{person.name} (ID: #{person.id}) - #{book.title} (#{rental.date})."
   end
 
-  def list_all_rentals
-    puts 'To see rentals enter the person ID: '
-    id = gets.chomp.to_i
+  def list_rentals_for_person(person_id)
+    person = find_person_by_id(person_id)
 
-    puts 'Rented Books: '
-    @rentals.each do |rental|
-      if rental.person.id == id
-        puts "Person: #{rental.person.name} Date: #{rental.date}, Book: '#{rental.book.title}' by #{rental.book.author}"
-      else
-        puts 'No match found for the given ID'
-      end
+    if person.nil?
+      puts 'Person not found. Please check the provided ID.'
+      return
+    end
+
+    puts "Rentals for #{person.name} (ID: #{person.id}):"
+    rentals = @rentals.select { |rental| rental.person == person }
+    rentals.each { |rental| puts "- #{rental.book.title} (#{rental.date})" }
+  end
+
+  def create_person_interactively
+    puts 'Enter person name:'
+    name = gets.chomp
+
+    puts 'Enter person age:'
+    age = gets.chomp.to_i
+
+    puts 'Is this person a teacher or student?'
+    puts '1. Teacher'
+    puts '2. Student'
+    type_choice = gets.chomp.to_i
+
+    if type_choice == 1
+      puts 'Enter teacher specialization:'
+      specialization = gets.chomp
+      create_person(name: name, age: age, type: 'teacher', specialization: specialization)
+    elsif type_choice == 2
+      puts 'Enter student classroom label:'
+      classroom_label = gets.chomp
+      classroom_instance = Classroom.new(classroom_label)
+      create_person(name: name, age: age, type: 'student', classroom: classroom_instance)
+    else
+      puts 'Invalid choice. Please select either 1 or 2.'
+    end
+  end
+
+  def create_book_interactively
+    puts 'Enter book title:'
+    title = gets.chomp
+
+    puts 'Enter book author:'
+    author = gets.chomp
+
+    create_book(title, author)
+  end
+
+  def create_rental_interactively
+    puts 'Select a person by index to create a rental:'
+    list_all_people_with_indexes
+    person_index = gets.chomp.to_i
+
+    if person_index >= 1 && person_index <= @people.length
+      puts 'Enter book title:'
+      book_title = gets.chomp
+
+      puts 'Enter rental date (YYYY-MM-DD):'
+      rental_date = gets.chomp
+
+      create_rental(@people[person_index - 1].id, book_title, rental_date)
+    else
+      puts 'Invalid person index. Please select a valid index.'
+    end
+  end
+
+  private
+
+  def find_person_by_id(id)
+    @people.find { |person| person.id == id }
+  end
+
+  def find_book_by_title(title)
+    @books.find { |book| book.title == title }
+  end
+
+  def display_person_info(person)
+    puts 'Person Details:'
+    puts "Name: #{person.name}"
+    puts "Age: #{person.age}"
+    if person.is_a?(Teacher)
+      puts 'Type: Teacher'
+      puts "Specialization: #{person.specialization}"
+    elsif person.is_a?(Student)
+      puts 'Type: Student'
+      puts "Classroom: #{person.classroom&.label}"
     end
   end
 end
